@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SBStoreWeb.Models;
 
 namespace SBStoreWeb.Data
 {
@@ -8,5 +9,7 @@ namespace SBStoreWeb.Data
         {
                
         }
+
+        public DbSet <Category> Categories { get; set; }
     }
 }
