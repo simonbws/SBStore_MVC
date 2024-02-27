@@ -15,8 +15,8 @@ namespace SBStoreWeb.Controllers
         }
         public IActionResult Index()
         {
-            List<Category>  objCatList = _data.Categories.ToList();
-            return View();
+            List<Category> objCatList = _data.Categories.ToList();
+            return View(objCatList);
         }
     }
 }
