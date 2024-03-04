@@ -18,5 +18,9 @@ namespace SBStoreWeb.Controllers
             List<Category> objCatList = _data.Categories.ToList();
             return View(objCatList);
         }
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }

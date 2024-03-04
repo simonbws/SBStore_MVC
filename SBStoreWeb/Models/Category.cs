@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace SBStoreWeb.Models
 {
@@ -7,7 +8,9 @@ namespace SBStoreWeb.Models
         [Key]
         public int Id { get; set; }
         [Required]
+        [DisplayName("Name")]
         public string Name { get; set; }
+        [DisplayName("Order")]
         public int DisplayOrder { get; set; }
 
     }
