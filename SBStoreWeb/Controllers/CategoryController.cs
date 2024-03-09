@@ -25,11 +25,12 @@ namespace SBStoreWeb.Controllers
         [HttpPost]
         public IActionResult Create(Category obj)
         {
-            if (obj.Name == obj.DisplayOrder.ToString())
-            {
-                ModelState.AddModelError("name", "The DisplayOrder must be different from the Name");
-            }
-            if(ModelState.IsValid)
+            //if (obj.Name == obj.DisplayOrder.ToString())
+            //{
+            //    ModelState.AddModelError("name", "The DisplayOrder must be different from the Name");
+            //}      
+
+            if (ModelState.IsValid)
             {
                 _data.Categories.Add(obj);
                 _data.SaveChanges();
