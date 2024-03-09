@@ -22,5 +22,12 @@ namespace SBStoreWeb.Controllers
         {
             return View();
         }
+        [HttpPost]
+        public IActionResult Create(Category obj)
+        {
+            _data.Categories.Add(obj);
+            _data.SaveChanges();
+            return RedirectToAction("Index", "Category");
+        }
     }
 }
