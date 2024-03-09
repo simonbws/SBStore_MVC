@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.EntityFrameworkCore;
 using SBStoreWeb.Data;
 using SBStoreWeb.Models;
@@ -67,6 +68,35 @@ namespace SBStoreWeb.Controllers
             }
             return View();
 
+        }
+
+        public IActionResult Delete(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            Category? categoryFromData = _data.Categories.Find(id);
+            //Category? categoryFromData1 = _data.Categories.FirstOrDefault(u=>u.Id==id);
+            //Category? categoryFromData2 = _data.Categories.Where(u => u.Id == id).FirstOrDefault();
+            if (categoryFromData == null)
+            {
+                return NotFound();
+            }
+
+            return View(categoryFromData);
+        }
+        [HttpPost, ActionName("Delete")]
+        public IActionResult DeletePOST(int? id)
+        {
+            Category? obj = _data.Categories.Find(id);
+            if(obj == null)
+            {
+                return NotFound();
+            }
+            _data.Categories.Remove(obj);
+            _data.SaveChanges();
+            return RedirectToAction("Index");
         }
     }
 }
