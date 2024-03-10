@@ -35,6 +35,7 @@ namespace SBStoreWeb.Controllers
             {
                 _data.Categories.Add(obj);
                 _data.SaveChanges();
+                TempData["success"] = "Category has beean created successfully";
                 return RedirectToAction("Index", "Category");
             }
            return View();
@@ -64,6 +65,7 @@ namespace SBStoreWeb.Controllers
             {
                 _data.Categories.Update(obj);
                 _data.SaveChanges();
+                TempData["success"] = "Category has beean updated successfully";
                 return RedirectToAction("Index");
             }
             return View();
@@ -96,6 +98,7 @@ namespace SBStoreWeb.Controllers
             }
             _data.Categories.Remove(obj);
             _data.SaveChanges();
+            TempData["success"] = "Category has deleted successfully";
             return RedirectToAction("Index");
         }
     }
