@@ -1,0 +1,51 @@
+﻿@page
+@model SBStoreWebRazor_Temp.Pages.Categories.IndexModel
+
+    <div class="container">
+    <div class="row pt-4 pb-3">
+            <div class="col-6">
+                <h2 class="text-primary">
+                    All Categories
+                </h2>
+            </div>
+            <div class="col-6 text-end">
+                <a asp-page="/categories/create" class="btn btn-primary">
+                <i class="bi bi-plus-square"></i>  New Category
+                </a>
+            </div>
+        </div>
+<table class=" table table-bordered">
+    <thead>
+        <tr>
+        <th>
+            Category
+        </th>
+        <th>
+            Orders
+        </th>
+        <th></th>
+    </tr>
+    <tbody>
+            @foreach (var obj in Model.CategoryList.OrderBy(u => u.DisplayOrder))
+            {
+                <tr>
+                     <td>@obj.Name</td>
+                     <td>@obj.DisplayOrder</td>
+                     <td>
+                                 <div class="btn-group w-75" role="group">
+                             <a asp-page="/categories/edit" asp-route-id="@obj.Id" class="btn btn-primary mx-2">
+                                     <i class="bi bi-pencil-square"></i> Edit
+                             </a>
+                            <a asp-page="/categories/delete" asp-route-id="@obj.Id" class="btn btn-danger">
+                                            <i class="bi bi-x-square"></i> Delete
+                                 </a>
+                         </div>
+                     </td>
+                </tr>
+            }
+    </tbody>
+    </thead>
+    </table>
+    </>
+</div>
+
