@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using SBStoreWeb.Models;
+using SBStore.Models;
 using System.Diagnostics;
 
 namespace SBStoreWeb.Controllers

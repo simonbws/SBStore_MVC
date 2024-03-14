@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.EntityFrameworkCore;
-using SBStoreWeb.Data;
-using SBStoreWeb.Models;
+using SBStore.DataAccess.Data;
+using SBStore.Models;
 using System.Net.WebSockets;
 
 namespace SBStoreWeb.Controllers

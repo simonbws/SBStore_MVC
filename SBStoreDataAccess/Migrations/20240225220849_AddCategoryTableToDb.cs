@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace SBStoreWeb.Migrations
+namespace SBStore.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class AddCategoryTableToDb : Migration

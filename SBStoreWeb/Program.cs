@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SBStoreWeb.Data;
+using SBStore.DataAccess.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

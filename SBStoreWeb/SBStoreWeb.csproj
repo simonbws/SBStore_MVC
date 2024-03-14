@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SBStoreDataAccess\SBStore.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

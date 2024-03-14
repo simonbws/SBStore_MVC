@@ -1,4 +1,4 @@
-namespace SBStoreWeb.Models
+namespace SBStore.Models
 {
     public class ErrorViewModel
     {
