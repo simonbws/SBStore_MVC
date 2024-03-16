@@ -10,14 +10,14 @@ namespace SBStoreWeb.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ICategoryRepository _categoryRepository;
-        public CategoryController(ICategoryRepository data)
+        private readonly IUnitOfWork _unitOfWork;
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _categoryRepository = data;
+            _unitOfWork = unitOfWork;
         }
         public IActionResult Index()
         {
-            List<Category> objCatList = _categoryRepository.GetAll().ToList();
+            List<Category> objCatList = _unitOfWork.Category.GetAll().ToList();
             return View(objCatList);
         }
         public IActionResult Create()
@@ -34,8 +34,8 @@ namespace SBStoreWeb.Controllers
 
             if (ModelState.IsValid)
             {
-                _categoryRepository.Add(obj);
-                _categoryRepository.Save();
+                _unitOfWork.Category.Add(obj);
+                _unitOfWork.Save();
                 TempData["success"] = "Category has beean created successfully";
                 return RedirectToAction("Index", "Category");
             }
@@ -49,7 +49,7 @@ namespace SBStoreWeb.Controllers
             {
                 return NotFound();
             }
-            Category? categoryFromData = _categoryRepository.Get(u=>u.Id==id);
+            Category? categoryFromData = _unitOfWork.Category.Get(u=>u.Id==id);
             //Category? categoryFromData1 = _data.Categories.FirstOrDefault(u=>u.Id==id);
             //Category? categoryFromData2 = _data.Categories.Where(u => u.Id == id).FirstOrDefault();
             if (categoryFromData == null)
@@ -64,8 +64,8 @@ namespace SBStoreWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                _categoryRepository.Update(obj);
-                _categoryRepository.Save();
+                _unitOfWork.Category.Update(obj);
+                _unitOfWork.Save();
                 TempData["success"] = "Category has beean updated successfully";
                 return RedirectToAction("Index");
             }
@@ -79,7 +79,7 @@ namespace SBStoreWeb.Controllers
             {
                 return NotFound();
             }
-            Category? categoryFromData = _categoryRepository.Get(u=>u.Id==id);
+            Category? categoryFromData = _unitOfWork.Category.Get(u=>u.Id==id);
             //Category? categoryFromData1 = _data.Categories.FirstOrDefault(u=>u.Id==id);
             //Category? categoryFromData2 = _data.Categories.Where(u => u.Id == id).FirstOrDefault();
             if (categoryFromData == null)
@@ -92,13 +92,13 @@ namespace SBStoreWeb.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category? obj = _categoryRepository.Get(u=>u.Id == id);
+            Category? obj = _unitOfWork.Category.Get(u=>u.Id == id);
             if(obj == null)
             {
                 return NotFound();
             }
-            _categoryRepository.Delete(obj);
-            _categoryRepository.Save();
+            _unitOfWork.Category.Delete(obj);
+            _unitOfWork.Save();
             TempData["success"] = "Category has deleted successfully";
             return RedirectToAction("Index");
         }
