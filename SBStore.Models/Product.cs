@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SBStore.Models
 {
@@ -32,5 +33,9 @@ namespace SBStore.Models
         [Display(Name = "Price for 100+")]
         [Range(1, 1000)]
         public double Price100 { get; set; }
+
+        public int CategoryId { get; set; }
+        [ForeignKey("CategoryId")] //foreign table which will be CategoryId
+        public Category Category  { get; set; } //Navigation property to Category table in order to define foreign key in relation between Category and Product 
     }
 }
