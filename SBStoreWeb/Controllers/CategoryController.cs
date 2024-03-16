@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.EntityFrameworkCore;
 using SBStore.DataAccess.Data;
+using SBStore.DataAccess.Repository.IRepository;
 using SBStore.Models;
 using System.Net.WebSockets;
 
@@ -9,14 +10,14 @@ namespace SBStoreWeb.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly AppDbContext _data;
-        public CategoryController(AppDbContext data)
+        private readonly ICategoryRepository _categoryRepository;
+        public CategoryController(ICategoryRepository data)
         {
-            _data = data;
+            _categoryRepository = data;
         }
         public IActionResult Index()
         {
-            List<Category> objCatList = _data.Categories.ToList();
+            List<Category> objCatList = _categoryRepository.GetAll().ToList();
             return View(objCatList);
         }
         public IActionResult Create()
@@ -33,8 +34,8 @@ namespace SBStoreWeb.Controllers
 
             if (ModelState.IsValid)
             {
-                _data.Categories.Add(obj);
-                _data.SaveChanges();
+                _categoryRepository.Add(obj);
+                _categoryRepository.Save();
                 TempData["success"] = "Category has beean created successfully";
                 return RedirectToAction("Index", "Category");
             }
@@ -48,7 +49,7 @@ namespace SBStoreWeb.Controllers
             {
                 return NotFound();
             }
-            Category? categoryFromData = _data.Categories.Find(id);
+            Category? categoryFromData = _categoryRepository.Get(u=>u.Id==id);
             //Category? categoryFromData1 = _data.Categories.FirstOrDefault(u=>u.Id==id);
             //Category? categoryFromData2 = _data.Categories.Where(u => u.Id == id).FirstOrDefault();
             if (categoryFromData == null)
@@ -63,8 +64,8 @@ namespace SBStoreWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                _data.Categories.Update(obj);
-                _data.SaveChanges();
+                _categoryRepository.Update(obj);
+                _categoryRepository.Save();
                 TempData["success"] = "Category has beean updated successfully";
                 return RedirectToAction("Index");
             }
@@ -78,7 +79,7 @@ namespace SBStoreWeb.Controllers
             {
                 return NotFound();
             }
-            Category? categoryFromData = _data.Categories.Find(id);
+            Category? categoryFromData = _categoryRepository.Get(u=>u.Id==id);
             //Category? categoryFromData1 = _data.Categories.FirstOrDefault(u=>u.Id==id);
             //Category? categoryFromData2 = _data.Categories.Where(u => u.Id == id).FirstOrDefault();
             if (categoryFromData == null)
@@ -91,13 +92,13 @@ namespace SBStoreWeb.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category? obj = _data.Categories.Find(id);
+            Category? obj = _categoryRepository.Get(u=>u.Id == id);
             if(obj == null)
             {
                 return NotFound();
             }
-            _data.Categories.Remove(obj);
-            _data.SaveChanges();
+            _categoryRepository.Delete(obj);
+            _categoryRepository.Save();
             TempData["success"] = "Category has deleted successfully";
             return RedirectToAction("Index");
         }

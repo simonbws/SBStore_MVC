@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SBStore.DataAccess.Data;
+using SBStore.DataAccess.Repository;
+using SBStore.DataAccess.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options=>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
 
+builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
