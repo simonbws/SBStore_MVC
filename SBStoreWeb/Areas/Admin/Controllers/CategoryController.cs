@@ -6,8 +6,9 @@ using SBStore.DataAccess.Repository.IRepository;
 using SBStore.Models;
 using System.Net.WebSockets;
 
-namespace SBStoreWeb.Controllers
+namespace SBStoreWeb.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -39,17 +40,17 @@ namespace SBStoreWeb.Controllers
                 TempData["success"] = "Category has beean created successfully";
                 return RedirectToAction("Index", "Category");
             }
-           return View();
-            
+            return View();
+
         }
 
         public IActionResult Edit(int? id)
         {
-            if(id == null || id==0) 
+            if (id == null || id == 0)
             {
                 return NotFound();
             }
-            Category? categoryFromData = _unitOfWork.Category.Get(u=>u.Id==id);
+            Category? categoryFromData = _unitOfWork.Category.Get(u => u.Id == id);
             //Category? categoryFromData1 = _data.Categories.FirstOrDefault(u=>u.Id==id);
             //Category? categoryFromData2 = _data.Categories.Where(u => u.Id == id).FirstOrDefault();
             if (categoryFromData == null)
@@ -79,7 +80,7 @@ namespace SBStoreWeb.Controllers
             {
                 return NotFound();
             }
-            Category? categoryFromData = _unitOfWork.Category.Get(u=>u.Id==id);
+            Category? categoryFromData = _unitOfWork.Category.Get(u => u.Id == id);
             //Category? categoryFromData1 = _data.Categories.FirstOrDefault(u=>u.Id==id);
             //Category? categoryFromData2 = _data.Categories.Where(u => u.Id == id).FirstOrDefault();
             if (categoryFromData == null)
@@ -92,8 +93,8 @@ namespace SBStoreWeb.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category? obj = _unitOfWork.Category.Get(u=>u.Id == id);
-            if(obj == null)
+            Category? obj = _unitOfWork.Category.Get(u => u.Id == id);
+            if (obj == null)
             {
                 return NotFound();
             }
