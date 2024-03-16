@@ -13,10 +13,12 @@ namespace SBStore.DataAccess.Repository
 
         private AppDbContext _data;
         public ICategoryRepository Category { get; private set; }
+        public IProductRepository Product { get; private set; }
         public UnitOfWork(AppDbContext data) 
         {
             _data = data;
             Category = new CategoryRepository(_data);
+            Product = new ProductRepository(_data);
         }
        
         public void Save()
