@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace SBStore.Models
 {
@@ -36,6 +37,9 @@ namespace SBStore.Models
 
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")] //foreign table which will be CategoryId
+        [ValidateNever]
         public Category Category  { get; set; } //Navigation property to Category table in order to define foreign key in relation between Category and Product 
+        [ValidateNever]
+        public string ImageURL { get; set; }
     }
 }
