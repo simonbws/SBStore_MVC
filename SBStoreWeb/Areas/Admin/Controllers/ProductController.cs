@@ -24,7 +24,7 @@ namespace SBStoreWeb.Areas.Admin.Controllers
            
             return View(objCatList);
         }
-        public IActionResult Create()
+        public IActionResult Upsert(int? id)
         {        
             ProductViewModel productViewModel = new()
             {
@@ -36,10 +36,20 @@ namespace SBStoreWeb.Areas.Admin.Controllers
                }),
                 Product = new Product()
             };
-            return View(productViewModel);
+            if (id == null || id == 0)
+            {
+                //create
+                return View(productViewModel);
+            }
+            else
+            {
+                //update
+                productViewModel.Product = _unitOfWork.Product.Get(u=>u.Id == id);
+                return View(productViewModel);
+            }
         }
         [HttpPost]
-        public IActionResult Create(ProductViewModel productViewModel)
+        public IActionResult Upsert(ProductViewModel productViewModel)
         {  
 
             if (ModelState.IsValid)
