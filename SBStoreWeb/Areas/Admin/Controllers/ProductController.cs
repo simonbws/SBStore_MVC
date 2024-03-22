@@ -8,6 +8,7 @@ using SBStore.Models;
 using SBStore.Models.ViewModels;
 using System.Net.WebSockets;
 
+
 namespace SBStoreWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -22,9 +23,9 @@ namespace SBStoreWeb.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<Product> objCatList = _unitOfWork.Product.GetAll().ToList();
+            List<Product> objProductList = _unitOfWork.Product.GetAll(includeProperties:"Category").ToList();
            
-            return View(objCatList);
+            return View(objProductList);
         }
         public IActionResult Upsert(int? id)
         {        
@@ -62,14 +63,34 @@ namespace SBStoreWeb.Areas.Admin.Controllers
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName); //random name for our file
                     string productPath = Path.Combine(wwwRootPath, @"images\product");
 
-                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                    if (!string.IsNullOrEmpty(productViewModel.Product.ImageURL))
+                    {
+                        //delete the old img
+                        //get the old img
+                        var oldimgPath = Path.Combine(wwwRootPath, productViewModel.Product.ImageURL.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldimgPath))
+                        {
+                            System.IO.File.Delete(oldimgPath);
+                        }
+                    }
+                    //uploading a new image
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName),FileMode.Create))
                     {
                         file.CopyTo(fileStream);
                     }
-
+                    //update img url
                     productViewModel.Product.ImageURL = @"\images\product\" + fileName;
                 }
-                _unitOfWork.Product.Add(productViewModel.Product);
+                if (productViewModel.Product.Id == 0)
+                {
+                    _unitOfWork.Product.Add(productViewModel.Product);
+                }
+                else
+                {
+                    _unitOfWork.Product.Update(productViewModel.Product);
+                }
+               
                 _unitOfWork.Save();
                 TempData["success"] = "Product has beean created successfully";
                 return RedirectToAction("Index", "Product");

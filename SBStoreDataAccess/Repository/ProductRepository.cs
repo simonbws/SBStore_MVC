@@ -22,7 +22,24 @@ namespace SBStore.DataAccess.Repository
 
         public void Update(Product obj)
         {
-            _data.Products.Update(obj);
+            var objFromDb = _data.Products.FirstOrDefault(u=> u.Id == obj.Id);
+            
+                objFromDb.Title = obj.Title;
+                objFromDb.Description = obj.Description;
+                objFromDb.Category = obj.Category;
+                objFromDb.ISBN = obj.ISBN;
+                objFromDb.Price50 = obj.Price50;
+                objFromDb.Price100 = obj.Price100;
+                objFromDb.Author = obj.Author;
+                objFromDb.CategoryId = obj.CategoryId;
+                objFromDb.ListPrice = obj.ListPrice;
+                if(obj.ImageURL != null)
+                {
+                    objFromDb.ImageURL = obj.ImageURL;
+                }
+                
+
+            }
         }
     }
-}
+
