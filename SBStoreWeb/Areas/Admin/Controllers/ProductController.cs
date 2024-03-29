@@ -107,37 +107,37 @@ namespace SBStoreWeb.Areas.Admin.Controllers
             }
         }
 
-        public IActionResult Edit(int? id)
-        {
-            if (id == null || id == 0)
-            {
-                return NotFound();
-            }
-            Product? productFromData = _unitOfWork.Product.Get(u => u.Id == id);
-            //Product? productFromData1 = _data.Categories.FirstOrDefault(u=>u.Id==id);
-            //Product? productFromData2 = _data.Categories.Where(u => u.Id == id).FirstOrDefault();
-            if (productFromData == null)
-            {
-                return NotFound();
-            }
+        //public IActionResult Edit(int? id)
+        //{
+        //    if (id == null || id == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    Product? productFromData = _unitOfWork.Product.Get(u => u.Id == id);
+        //    //Product? productFromData1 = _data.Categories.FirstOrDefault(u=>u.Id==id);
+        //    //Product? productFromData2 = _data.Categories.Where(u => u.Id == id).FirstOrDefault();
+        //    if (productFromData == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(productFromData);
-        }
-        [HttpPost]
-        public IActionResult Edit(Product obj)
-        {
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.Product.Update(obj);
-                _unitOfWork.Save();
-                TempData["success"] = "Product has beean updated successfully";
-                return RedirectToAction("Index");
-            }
-            return View();
+        //    return View(productFromData);
+        //}
+        //[HttpPost]
+        //public IActionResult Edit(Product obj)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        _unitOfWork.Product.Update(obj);
+        //        _unitOfWork.Save();
+        //        TempData["success"] = "Product has beean updated successfully";
+        //        return RedirectToAction("Index");
+        //    }
+        //    return View();
 
-        }
+        //}
 
-        
+
         #region API CALLS
 
         [HttpGet]
@@ -146,16 +146,16 @@ namespace SBStoreWeb.Areas.Admin.Controllers
             List<Product> objProductList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
             return Json(new { data = objProductList });
         }
-    
+        [HttpDelete]
         public IActionResult Delete(int? id)
         {
             var productToBeDeleted = _unitOfWork.Product.Get(u=>u.Id == id);
 
-            if(productToBeDeleted == null)
+            if (productToBeDeleted == null)
             {
-                return Json(new {success = false, message = "Error while removing"});
+                return Json(new { success = false, message = "Error while removing"});
             }
-            //deleting old imaga
+            //deleting old image
             var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, productToBeDeleted.ImageURL.TrimStart('\\'));
 
             if (System.IO.File.Exists(oldImagePath))
@@ -165,8 +165,8 @@ namespace SBStoreWeb.Areas.Admin.Controllers
             _unitOfWork.Product.Delete(productToBeDeleted);
             _unitOfWork.Save();
 
-            List<Product> objProductList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
-            return Json(new { data = objProductList });
+
+            return Json(new { success = true, message = "Delete Successfull" });
         }
 
 
