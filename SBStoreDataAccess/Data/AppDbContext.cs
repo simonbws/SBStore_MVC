@@ -13,6 +13,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     }
     public DbSet <Category> Categories { get; set; } //tworzymy tabelę
     public DbSet <Product> Products { get; set; } //tworzymy tabelę
+    public DbSet<AppUser> AppUsers { get; set; } 
     protected override void OnModelCreating(ModelBuilder modelBuilder) //wstrzykujemy dane
     {
         base.OnModelCreating(modelBuilder);
