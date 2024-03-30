@@ -1,19 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SBStore.Models;
 
 namespace SBStore.DataAccess.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<IdentityUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
            
     }
-
     public DbSet <Category> Categories { get; set; } //tworzymy tabelę
     public DbSet <Product> Products { get; set; } //tworzymy tabelę
     protected override void OnModelCreating(ModelBuilder modelBuilder) //wstrzykujemy dane
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Category>().HasData(
             new Category { Id = 1, Name = "Horror", DisplayOrder = 1 },
             new Category { Id = 2, Name = "Poetry", DisplayOrder = 2 },
