@@ -3,6 +3,8 @@ using SBStore.DataAccess.Data;
 using SBStore.DataAccess.Repository;
 using SBStore.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using SBStore.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,9 +13,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<AppDbContext>(options=>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
 
-builder.Services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<AppDbContext>();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+builder.Services.AddScoped<IEmailSender,EmailSender>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
