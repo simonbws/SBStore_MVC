@@ -11,11 +11,11 @@ namespace SBStore.Models
     public class AppUser : IdentityUser
     {
         [Required]
-        public int Name { get; set; }
+        public string Name { get; set; }
 
-        public int? StreetAddress { get; set; }
-        public int? City { get; set; }
-        public int? State { get; set; }
-        public int? PostalCode { get; set; }
+        public string? StreetAddress { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? PostalCode { get; set; }
     }
 }
