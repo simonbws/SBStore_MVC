@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SBStore.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using SBStore.DataAccess.Data;
 namespace SBStore.DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240407205151_addCompanyTable")]
+    partial class addCompanyTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -300,38 +303,6 @@ namespace SBStore.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Companies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            City = "Tech City",
-                            Name = "Technology Solution",
-                            PhoneNumber = "23322323",
-                            PostalCode = "32-232",
-                            State = "Ill",
-                            StreetAddress = "Tech St"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            City = "Bio City",
-                            Name = "Biology Solution",
-                            PhoneNumber = "23322323",
-                            PostalCode = "32-233",
-                            State = "Maschs",
-                            StreetAddress = "Bio St"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            City = "Med City",
-                            Name = "Medical Solution",
-                            PhoneNumber = "23322323",
-                            PostalCode = "32-255",
-                            State = "Cal",
-                            StreetAddress = "Med St"
-                        });
                 });
 
             modelBuilder.Entity("SBStore.Models.Product", b =>

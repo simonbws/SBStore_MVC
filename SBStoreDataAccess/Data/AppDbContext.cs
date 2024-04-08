@@ -13,6 +13,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     }
     public DbSet <Category> Categories { get; set; } //tworzymy tabelę
     public DbSet <Product> Products { get; set; } //tworzymy tabelę
+    public DbSet <Company> Companies { get; set; } //tworzymy tabelę
     public DbSet<AppUser> AppUsers { get; set; } 
     protected override void OnModelCreating(ModelBuilder modelBuilder) //wstrzykujemy dane
     {
@@ -23,6 +24,12 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
             new Category { Id = 2, Name = "Poetry", DisplayOrder = 2 },
             new Category { Id = 3, Name = "Romance", DisplayOrder = 3 }
             );
+
+        modelBuilder.Entity<Company>().HasData(
+          new Company { Id = 1, Name = "Technology Solution", StreetAddress = "Tech St" , City = "Tech City", PostalCode="32-232",State= "Ill", PhoneNumber="23322323"},
+          new Company { Id = 2, Name = "Biology Solution", StreetAddress = "Bio St", City = "Bio City", PostalCode = "32-233", State = "Maschs", PhoneNumber = "23322323" },
+          new Company { Id = 3, Name = "Medical Solution", StreetAddress = "Med St", City = "Med City", PostalCode = "32-255", State = "Cal", PhoneNumber = "23322323" }
+          );
 
         modelBuilder.Entity<Product>().HasData(
              new Product
