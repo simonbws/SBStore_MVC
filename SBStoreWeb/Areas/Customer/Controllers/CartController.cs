@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SBStore.DataAccess.Repository;
 using SBStore.DataAccess.Repository.IRepository;
 using SBStore.Models;
 using SBStore.Models.ViewModels;
@@ -36,6 +37,43 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 
             return View(ShoppingCartVM);
         }
+
+
+        public IActionResult Plus(int cartId)
+        {
+            var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);//retrieving the shopping cart
+            cartFromDb.Count += 1;
+            _unitOfWork.ShoppingCart.Update(cartFromDb);
+            _unitOfWork.Save(); //updating the cart
+            return RedirectToAction(nameof(Index));
+        }
+        public IActionResult Minus(int cartId)
+        {
+            var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);//retrieving the shopping cart
+            if (cartFromDb.Count <= 1)
+            {
+                _unitOfWork.ShoppingCart.Delete(cartFromDb);
+                //remove from cart
+
+            }
+            else
+            {
+                cartFromDb.Count -= 1;
+                _unitOfWork.ShoppingCart.Update(cartFromDb);
+
+            }
+            _unitOfWork.Save(); //updating the cart
+            return RedirectToAction(nameof(Index));
+
+        }
+        public IActionResult Remove(int cartId)
+        {
+            var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);//retrieving the shopping cart
+            _unitOfWork.ShoppingCart.Delete(cartFromDb);
+            _unitOfWork.Save(); //updating the cart
+            return RedirectToAction(nameof(Index));
+
+        }
         private double GetPriceByQuantity(ShoppingCart shoppingCart)
         {
             if (shoppingCart.Count <= 50)
@@ -56,3 +94,4 @@ namespace SBStoreWeb.Areas.Customer.Controllers
         }
     }
 }
+
