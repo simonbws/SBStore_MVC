@@ -11,7 +11,7 @@ namespace SBStore.DataAccess.Repository.IRepository
     {
         //T will be the Category
         IEnumerable<T> GetAll(string? includeProperties = null);
-        T Get(Expression<Func<T, bool>> filter, string? includeProperties = null);
+        T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false);
         void Add(T entity);
         void Delete(T entity);
         void DeleteRange(IEnumerable<T> entity);
