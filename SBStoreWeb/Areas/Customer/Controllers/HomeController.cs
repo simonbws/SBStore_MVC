@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SBStore.DataAccess.Repository.IRepository;
 using SBStore.Models;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace SBStoreWeb.Areas.Customer.Controllers
 {
@@ -31,6 +33,28 @@ namespace SBStoreWeb.Areas.Customer.Controllers
                 ProductId = productId
             };
             return View(cart);
+        }
+        [HttpPost]
+        [Authorize]
+        public IActionResult Details(ShoppingCart shoppingCart)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            shoppingCart.AppUserId = userId;
+            //how to prevent duplicates
+            ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.AppUserId == userId && u.ProductId == shoppingCart.ProductId);
+            if(cartFromDb != null)
+            {
+                //shopping cart exists
+                cartFromDb.Count += shoppingCart.Count;
+                _unitOfWork.ShoppingCart.Update(cartFromDb);
+            }
+            else
+            {
+                _unitOfWork.ShoppingCart.Add(shoppingCart);
+            }
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(Index)); //Redirect to home page because the null expection came along
         }
 
         public IActionResult Privacy()
