@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SBStore.DataAccess.Repository.IRepository;
+using SBStore.Models;
 using SBStore.Models.ViewModels;
 using System.Security.Claims;
 
@@ -26,7 +27,32 @@ namespace SBStoreWeb.Areas.Customer.Controllers
             {
                 ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(u => u.AppUserId == userId, includeProperties: "Product")
             };
+
+            foreach (var cart in ShoppingCartVM.ShoppingCartList)
+            {
+                cart.Price = GetPriceByQuantity(cart);
+                ShoppingCartVM.OrderTotal += (cart.Price * cart.Count);
+            }
+
             return View(ShoppingCartVM);
+        }
+        private double GetPriceByQuantity(ShoppingCart shoppingCart)
+        {
+            if (shoppingCart.Count <= 50)
+            {
+                return shoppingCart.Product.Price;
+            }
+            else
+            {
+                if (shoppingCart.Count <= 1000)
+                {
+                    return shoppingCart.Product.Price50;
+                }
+                else
+                {
+                    return shoppingCart.Product.Price100;
+                }
+            }
         }
     }
 }
