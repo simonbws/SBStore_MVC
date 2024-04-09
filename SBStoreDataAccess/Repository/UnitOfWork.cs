@@ -16,9 +16,11 @@ namespace SBStore.DataAccess.Repository
         public IProductRepository Product { get; private set; }
         public ICompanyRepository Company { get; private set; }
         public IShoppingCartRepository ShoppingCart { get; private set; }
+        public IAppUserRepository AppUser { get; private set; }
         public UnitOfWork(AppDbContext data) 
         {
             _data = data;
+            AppUser = new AppUserRepository(_data);
             ShoppingCart = new ShoppingCartRepository(_data);
             Category = new CategoryRepository(_data);
             Product = new ProductRepository(_data);
