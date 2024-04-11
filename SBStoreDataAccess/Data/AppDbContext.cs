@@ -16,6 +16,9 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     public DbSet <Company> Companies { get; set; } //tworzymy tabelę
     public DbSet <ShoppingCart> ShoppingCarts { get; set; } //tworzymy tabelę
     public DbSet<AppUser> AppUsers { get; set; } 
+    public DbSet<OrderHeader> OrderHeaders { get; set; } 
+    public DbSet<OrderDetail> OrderDetails { get; set; } 
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder) //wstrzykujemy dane
     {
         base.OnModelCreating(modelBuilder);
