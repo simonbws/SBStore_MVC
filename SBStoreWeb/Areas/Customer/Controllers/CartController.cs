@@ -81,7 +81,7 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 			ShoppingCartVM.OrderHeader.OrderDate = System.DateTime.Now;
 			ShoppingCartVM.OrderHeader.AppUserId = userId;
 
-			ShoppingCartVM.OrderHeader.AppUser = _unitOfWork.AppUser.Get(u => u.Id == userId);
+			AppUser appUser = _unitOfWork.AppUser.Get(u => u.Id == userId);
 
 			foreach (var cart in ShoppingCartVM.ShoppingCartList)
 			{
@@ -89,8 +89,8 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 				ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
 			}
 
-			if (ShoppingCartVM.OrderHeader.AppUser.CompanyId.GetValueOrDefault() == 0)
-			//it is a regular customer account and we need to capture payment 
+			if (appUser.CompanyId.GetValueOrDefault() == 0)
+			//it is a regular customer
 			//we have to make both of them to be pending
 			{
 				ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
@@ -120,7 +120,21 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 				_unitOfWork.Save();
 			}
 
-			return View(ShoppingCartVM);
+			if (appUser.CompanyId.GetValueOrDefault() == 0)
+			//it is a regular customer account and we need to capture payment 
+			//stripe logic
+			{
+				
+			}
+
+
+			return RedirectToAction(nameof(OrderConfirmation), new { id=ShoppingCartVM.OrderHeader.Id });
+		}
+
+
+		public IActionResult OrderConfirmation(int id)
+		{
+			return View(id);
 		}
 		public IActionResult Plus(int cartId)
 		{
