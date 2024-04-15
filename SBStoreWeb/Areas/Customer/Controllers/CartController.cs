@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol;
 using SBStore.DataAccess.Repository;
 using SBStore.DataAccess.Repository.IRepository;
 using SBStore.Models;
@@ -144,7 +145,7 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 						PriceData = new SessionLineItemPriceDataOptions()
 						{
 							UnitAmount = (long)(item.Price * 100), //$20.50 => 2050
-							Currency = "usd",
+							Currency = "pln",
 							ProductData = new SessionLineItemPriceDataProductDataOptions
 							{
 								Name = item.Product.Title
@@ -171,6 +172,27 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 
 		public IActionResult OrderConfirmation(int id)
 		{
+
+			OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u=>u.Id == id, includeProperties: "AppUser");
+			
+			if (orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment)
+			{
+				//this is an order byu customer
+				var service = new SessionService();
+				Session session = service.Get(orderHeader.SessionId);
+
+				if (session.PaymentStatus.ToLower() == "paid")
+				{
+                    _unitOfWork.OrderHeader.UpdateStripePaymentID(id, session.Id, session.PaymentIntentId); //true
+					_unitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
+					_unitOfWork.Save();
+                }
+			}
+			//after successful payment remove list of shopping cart products
+			List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart.GetAll(u=>u.AppUserId == orderHeader.AppUserId).ToList(); //list of products in shopping cart
+			_unitOfWork.ShoppingCart.DeleteRange(shoppingCarts);
+			_unitOfWork.Save();
+
 			return View(id);
 		}
 		public IActionResult Plus(int cartId)
