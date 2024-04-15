@@ -24,5 +24,33 @@ namespace SBStore.DataAccess.Repository
         {
             _data.OrderHeaders.Update(obj);
         }
+
+        public void UpdateStatus(int id, string orderStatus, string? paymentStatus = null)
+        {
+            var orderFromDb = _data.OrderHeaders.FirstOrDefault(u => u.Id == id); //retrieve Order Header
+            if (orderFromDb != null)
+            {
+                orderFromDb.OrderStatus = orderStatus; //update orderfromdb
+                if (!string.IsNullOrEmpty(paymentStatus))
+                {
+                    orderFromDb.PaymentStatus = paymentStatus; //update
+                }
+            }
+
+        }
+
+        public void UpdateStripePaymentID(int id, string sessionId, string paymentIntentId)
+        {
+            var orderFromDb = _data.OrderHeaders.FirstOrDefault(u => u.Id == id);
+            if(!string.IsNullOrEmpty(sessionId))
+            {
+                orderFromDb.SessionId = sessionId; //it checks when a user tries to make a payment. when it is successful then a payment intent id gets generated
+            }
+            if (!string.IsNullOrEmpty(paymentIntentId))
+            {
+                orderFromDb.PaymentIntentId = paymentIntentId; 
+                orderFromDb.PaymentDate = DateTime.Now; 
+            }
+        }
     }
 }
