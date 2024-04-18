@@ -11,6 +11,7 @@ using System.Security.Claims;
 namespace SBStoreWeb.Areas.Admin.Controllers
 {
     [Area("admin")]
+    [Authorize]
     public class OrderController : Controller
     {
 
@@ -61,8 +62,37 @@ namespace SBStoreWeb.Areas.Admin.Controllers
             TempData["Success"] = "Order Details has been updated!";
             return RedirectToAction(nameof(Details), new {orderId = orderHeaderFromDb.Id});
         }
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public IActionResult StartProcessing()
+        {
+            _unitOfWork.OrderHeader.UpdateStatus(OrderVM.OrderHeader.Id, SD.StatusInProcess);
+            _unitOfWork.Save();
+            TempData["Success"] = "Order Details has been updated!";
+            return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
+        }
 
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public IActionResult ShipOrder()
+        {
+            var orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id);
+            //update properties
+            orderHeader.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
+            orderHeader.Carrier = OrderVM.OrderHeader.Carrier;
+            orderHeader.OrderStatus = SD.StatusShipped;
+            orderHeader.ShippingDate = DateTime.Now;
+            orderHeader.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
+            if(orderHeader.PaymentStatus==SD.PaymentStatusDelayedPayment)
+            {
+                orderHeader.PaymentDueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30));
+            }
+            _unitOfWork.OrderHeader.Update(orderHeader);
+            _unitOfWork.Save();
+            TempData["Success"] = "Order Shipped Success!";
+            return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
 
+        }
         #region API CALLS
 
         [HttpGet]
