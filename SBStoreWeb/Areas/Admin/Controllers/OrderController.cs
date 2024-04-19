@@ -6,6 +6,7 @@ using SBStore.Models;
 using SBStore.Models.ViewModels;
 using SBStore.Utility;
 using Stripe;
+using Stripe.Checkout;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -38,7 +39,7 @@ namespace SBStoreWeb.Areas.Admin.Controllers
             return View(OrderVM);
         }
         [HttpPost]
-        [Authorize(Roles =SD.Role_Admin+","+SD.Role_Employee)]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
         public IActionResult UpdateOrderDetail()
         {
             var orderHeaderFromDb = _unitOfWork.OrderHeader.Get(u => u.Id == OrderVM.OrderHeader.Id);
@@ -61,7 +62,7 @@ namespace SBStoreWeb.Areas.Admin.Controllers
             _unitOfWork.OrderHeader.Update(orderHeaderFromDb);
             _unitOfWork.Save();
             TempData["Success"] = "Order Details has been updated!";
-            return RedirectToAction(nameof(Details), new {orderId = orderHeaderFromDb.Id});
+            return RedirectToAction(nameof(Details), new { orderId = orderHeaderFromDb.Id });
         }
         [HttpPost]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
@@ -84,7 +85,7 @@ namespace SBStoreWeb.Areas.Admin.Controllers
             orderHeader.OrderStatus = SD.StatusShipped;
             orderHeader.ShippingDate = DateTime.Now;
             orderHeader.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
-            if(orderHeader.PaymentStatus==SD.PaymentStatusDelayedPayment)
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
             {
                 orderHeader.PaymentDueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30));
             }
@@ -122,7 +123,81 @@ namespace SBStoreWeb.Areas.Admin.Controllers
             return RedirectToAction(nameof(Details), new { orderId = OrderVM.OrderHeader.Id });
 
         }
-        
+
+        [ActionName("Details")]
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public IActionResult Details_PAY_NOW()
+        {
+            OrderVM.OrderHeader = _unitOfWork.OrderHeader
+                .Get(u => u.Id == OrderVM.OrderHeader.Id, includeProperties: "AppUser");
+            OrderVM.OrderDetail = _unitOfWork.OrderDetail
+                .GetAll(u => u.OrderHeaderId == OrderVM.OrderHeader.Id, includeProperties: "Product");
+
+            //stripe logic
+            var domain = "https://localhost:7236/";
+            var options = new SessionCreateOptions
+            {
+                SuccessUrl = domain + $"admin/order/PaymentConfirmation?orderHeaderId={OrderVM.OrderHeader.Id}",
+                CancelUrl = domain + $"admin/order/details?orderId={OrderVM.OrderHeader.Id}",
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment",
+            };
+
+            foreach (var item in OrderVM.OrderDetail)
+            {
+                var sessionLineItem = new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(item.Price * 100), // $20.50 => 2050
+                        Currency = "pln",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.Product.Title
+                        }
+                    },
+                    Quantity = item.Count
+                };
+                options.LineItems.Add(sessionLineItem);
+            }
+
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+            _unitOfWork.OrderHeader.UpdateStripePaymentID(OrderVM.OrderHeader.Id, session.Id, session.PaymentIntentId);
+            _unitOfWork.Save();
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+        }
+
+        public IActionResult PaymentConfirmation(int orderHeaderId)
+        {
+
+            OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderHeaderId);
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
+            {
+                //this is an order by company
+
+                var service = new SessionService();
+                Session session = service.Get(orderHeader.SessionId);
+
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+                    _unitOfWork.OrderHeader.UpdateStripePaymentID(orderHeaderId, session.Id, session.PaymentIntentId);
+                    _unitOfWork.OrderHeader.UpdateStatus(orderHeaderId, orderHeader.OrderStatus, SD.PaymentStatusApproved);
+                    _unitOfWork.Save();
+                }
+
+
+            }
+
+
+            return View(orderHeaderId);
+        }
+
+
+
         #region API CALLS
 
         [HttpGet]
@@ -130,19 +205,16 @@ namespace SBStoreWeb.Areas.Admin.Controllers
         {
             IEnumerable<OrderHeader> objOrderHeaders;
 
-            //If user is admin and employee get all the orders from everyone
-            if(User.IsInRole(SD.Role_Admin)|| User.IsInRole(SD.Role_Employee)) {
-                 objOrderHeaders = _unitOfWork.OrderHeader.GetAll(includeProperties: "AppUser").ToList();
+            if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
+            {
+                objOrderHeaders = _unitOfWork.OrderHeader.GetAll(includeProperties: "AppUser").ToList();
             }
             else
-            //if not, others we will be able to see only their own orders, so we will filter that based on userId
-            //First, get the userId
             {
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-                //load that obj
-                objOrderHeaders = _unitOfWork.OrderHeader.GetAll(u=>u.AppUserId == userId, includeProperties:"AppUser");
-
+                objOrderHeaders = _unitOfWork.OrderHeader
+                    .GetAll(u => u.AppUserId == userId, includeProperties: "AppUser");
             }
             switch (status)
             {
@@ -153,19 +225,27 @@ namespace SBStoreWeb.Areas.Admin.Controllers
                     objOrderHeaders = objOrderHeaders.Where(u => u.OrderStatus == SD.StatusInProcess);
                     break;
                 case "completed":
-                    objOrderHeaders = objOrderHeaders.Where(u => u.PaymentStatus == SD.StatusShipped);
+                    objOrderHeaders = objOrderHeaders.Where(u => u.OrderStatus == SD.StatusShipped);
                     break;
                 case "approved":
-                    objOrderHeaders = objOrderHeaders.Where(u => u.PaymentStatus == SD.StatusApproved);
+                    objOrderHeaders = objOrderHeaders.Where(u => u.OrderStatus == SD.StatusApproved);
                     break;
                 default:
                     break;
             }
             return Json(new { data = objOrderHeaders });
         }
-       
-
-
         #endregion
     }
 }
+
+
+
+
+////it is a regular customer account and we need to capture payment 
+////stripe logic
+//{
+
+//    // StripeConfiguration.ApiKey = "sk_test_7mJuPfZsBzc3JkrANrFrcDqC";
+//    var domain = "https://localhost:7236/";
+//    var options = new Stripe.Checkout.SessionCreateOptions
