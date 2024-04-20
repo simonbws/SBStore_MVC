@@ -205,13 +205,15 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 		}
 		public IActionResult Minus(int cartId)
 		{
-			var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);//retrieving the shopping cart
+			var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId, tracked:true);//retrieving the shopping cart
 			if (cartFromDb.Count <= 1)
 			{
-				_unitOfWork.ShoppingCart.Delete(cartFromDb);
-				//remove from cart
-
-			}
+                //remove from cart
+                HttpContext.Session.SetInt32(SD.SessionCard, _unitOfWork.ShoppingCart.GetAll(u => u.AppUserId == cartFromDb.AppUserId).Count() - 1);
+                _unitOfWork.ShoppingCart.Delete(cartFromDb);
+                
+                
+            }
 			else
 			{
 				cartFromDb.Count -= 1;
@@ -224,9 +226,10 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 		}
 		public IActionResult Remove(int cartId)
 		{
-			var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);//retrieving the shopping cart
-			_unitOfWork.ShoppingCart.Delete(cartFromDb);
-			_unitOfWork.Save(); //updating the cart
+			var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId, tracked:true);//retrieving the shopping cart
+            HttpContext.Session.SetInt32(SD.SessionCard, _unitOfWork.ShoppingCart.GetAll(u => u.AppUserId == cartFromDb.AppUserId).Count() - 1);
+            _unitOfWork.ShoppingCart.Delete(cartFromDb);
+            _unitOfWork.Save(); //updating the cart
 			return RedirectToAction(nameof(Index));
 
 		}
