@@ -187,6 +187,7 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 					_unitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
 					_unitOfWork.Save();
                 }
+				HttpContext.Session.Clear();
 			}
 			//after successful payment remove list of shopping cart products
 			List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart.GetAll(u=>u.AppUserId == orderHeader.AppUserId).ToList(); //list of products in shopping cart
