@@ -23,14 +23,6 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-
-            if (claim != null) //that means the user is logged in
-            {
-                HttpContext.Session.SetInt32(SD.SessionCard,
-               _unitOfWork.ShoppingCart.GetAll(u => u.AppUserId == claim.Value).Count());
-            }
             IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category");
             return View(productList);
         }
