@@ -41,5 +41,6 @@ namespace SBStore.Models
         public Category Category  { get; set; } //Navigation property to Category table in order to define foreign key in relation between Category and Product 
         [ValidateNever]
         public string ImageURL { get; set; }
+        public int TestProperty { get; set; }
     }
 }
