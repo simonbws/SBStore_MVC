@@ -17,5 +17,9 @@ namespace SBStore.DataAccess.Repository
         {
               _data = data;
         }
+        public void Update(AppUser appUser)
+        {
+            _data.AppUsers.Update(appUser);
+        }
     }
 }

@@ -18,11 +18,14 @@ namespace SBStoreWeb.Areas.Admin.Controllers
     [Authorize(Roles = SD.Role_Admin)]
     public class UserController : Controller
     {
-        private readonly AppDbContext _data;
+        
         private readonly UserManager<IdentityUser> _userManager;
-        public UserController(AppDbContext data,UserManager<IdentityUser> userManager)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IUnitOfWork _unitOfWork;
+        public UserController(UserManager<IdentityUser> userManager, IUnitOfWork unitOfWork, RoleManager<IdentityRole> roleManager)
         {
-            _data = data;
+            _unitOfWork = unitOfWork;
+            _roleManager = roleManager;
             _userManager = userManager;
            
         }
@@ -33,40 +36,37 @@ namespace SBStoreWeb.Areas.Admin.Controllers
 
         public IActionResult RoleManagement(string userId)
         {
-            //retrieve the role id from user roles table
-            string RoleID = _data.UserRoles.FirstOrDefault(u => u.UserId == userId).RoleId;
-
             RoleManagementVM RoleVM = new RoleManagementVM()
             {
-                AppUser = _data.AppUsers.Include(u => u.Company).FirstOrDefault(u => u.Id == userId),
-                RoleList = _data.Roles.Select(i => new SelectListItem
+                AppUser = _unitOfWork.AppUser.Get(u => u.Id == userId, includeProperties:"Company"),
+                RoleList = _roleManager.Roles.Select(i => new SelectListItem
                 {
                     Text = i.Name,
                     Value = i.Name
                 }),
-                CompanyList = _data.Companies.Select(i => new SelectListItem
+                CompanyList = _unitOfWork.Company.GetAll().Select(i => new SelectListItem
                 {
                     Text = i.Name,
                     Value = i.Id.ToString()
                 }),
             };
 
-            RoleVM.AppUser.Role = _data.Roles.FirstOrDefault(u => u.Id == RoleID).Name;
+            RoleVM.AppUser.Role = _userManager.GetRolesAsync(_unitOfWork.AppUser.Get(u => u.Id == userId))
+                .GetAwaiter().GetResult().FirstOrDefault();
             return View(RoleVM);
         }
         [HttpPost]
         public IActionResult RoleManagement(RoleManagementVM roleManagementVM)
         {
-            //retrieve the role id from user roles table
-            string RoleID = _data.UserRoles.FirstOrDefault(u => u.UserId == roleManagementVM.AppUser.Id).RoleId; //current role
+            string oldRole  = _userManager.GetRolesAsync(_unitOfWork.AppUser.Get(u => u.Id == roleManagementVM.AppUser.Id))
+                .GetAwaiter().GetResult().FirstOrDefault();
 
-            string oldRole = _data.Roles.FirstOrDefault(u => u.Id == RoleID).Name;
+
+            AppUser appUser = _unitOfWork.AppUser.Get(u => u.Id == roleManagementVM.AppUser.Id);
 
             if (!(roleManagementVM.AppUser.Role == oldRole)) //if current role is not equal to old role
             {
                 //a role was updated
-                AppUser appUser = _data.AppUsers.FirstOrDefault(u => u.Id == roleManagementVM.AppUser.Id);
-
                 if (roleManagementVM.AppUser.Role == SD.Role_Company)
                 {
                     appUser.CompanyId = roleManagementVM.AppUser.CompanyId;
@@ -75,10 +75,21 @@ namespace SBStoreWeb.Areas.Admin.Controllers
                 {
                     appUser.CompanyId = null;
                 }
-                _data.SaveChanges();
+                _unitOfWork.AppUser.Update(appUser);
+                _unitOfWork.Save();
               
                 _userManager.RemoveFromRoleAsync(appUser, oldRole).GetAwaiter().GetResult();
                 _userManager.AddToRoleAsync(appUser, roleManagementVM.AppUser.Role).GetAwaiter().GetResult();
+            }
+            else
+            {
+                if(oldRole == SD.Role_Company && appUser.CompanyId != roleManagementVM.AppUser.CompanyId)
+                {
+                    appUser.CompanyId = roleManagementVM.AppUser.CompanyId;
+                    _unitOfWork.AppUser.Update(appUser);
+                    _unitOfWork.Save();
+
+                }
             }
             return RedirectToAction("Index");
         }
@@ -88,18 +99,14 @@ namespace SBStoreWeb.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            List<AppUser> objUserList = _data.AppUsers.Include(u=>u.Company).ToList();
+            List<AppUser> objUserList = _unitOfWork.AppUser.GetAll(includeProperties: "Company").ToList();
 
-            var userRoles = _data.UserRoles.ToList();
-            var roles = _data.Roles.ToList();
             foreach (var user in objUserList)
             {
-
-                var roleId = userRoles.FirstOrDefault(u => u.UserId == user.Id).RoleId;
-                user.Role = roles.FirstOrDefault(u => u.Id == roleId).Name;
+                user.Role = _userManager.GetRolesAsync(user).GetAwaiter().GetResult().FirstOrDefault();
                 if (user.Company == null)
                 {
-                    user.Company = new() { Name = "" };
+                    user.Company = new Company() { Name = "" };
                 }
             }
 
@@ -108,7 +115,7 @@ namespace SBStoreWeb.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult LockUnlock([FromBody]string id)
         {
-           var objFromDb = _data.AppUsers.FirstOrDefault(u => u.Id == id);
+           var objFromDb = _unitOfWork.AppUser.Get(u => u.Id == id);
             //sprawdzamy czy uzytkownik istnieje w bazie danych, zawsze na poczatku!
             if (objFromDb == null)
             {
@@ -125,7 +132,8 @@ namespace SBStoreWeb.Areas.Admin.Controllers
             {
                 objFromDb.LockoutEnd = DateTime.Now.AddYears(1000);
             }
-            _data.SaveChanges();
+            _unitOfWork.AppUser.Update(objFromDb);
+            _unitOfWork.Save();
             return Json(new { success = true, message = "Operation Successfull" });
         }
 
