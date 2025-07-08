@@ -33,10 +33,11 @@ namespace SBStore.DataAccess.Repository
                 objFromDb.Author = obj.Author;
                 objFromDb.CategoryId = obj.CategoryId;
                 objFromDb.ListPrice = obj.ListPrice;
-                if(obj.ImageURL != null)
-                {
-                    objFromDb.ImageURL = obj.ImageURL;
-                }
+                objFromDb.ProductImages = obj.ProductImages;
+                //if(obj.ImageURL != null)
+                //{
+                //    objFromDb.ImageURL = obj.ImageURL;
+                //}
                 
 
             }
