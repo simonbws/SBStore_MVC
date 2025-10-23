@@ -126,7 +126,6 @@ namespace SBStoreWeb.Areas.Admin.Controllers
 
         [ActionName("Details")]
         [HttpPost]
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
         public IActionResult Details_PAY_NOW()
         {
             OrderVM.OrderHeader = _unitOfWork.OrderHeader

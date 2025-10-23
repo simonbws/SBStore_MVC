@@ -244,7 +244,7 @@ namespace SBStoreWeb.Areas.Customer.Controllers
 			}
 			else
 			{
-				if (shoppingCart.Count <= 1000)
+				if (shoppingCart.Count <= 100)
 				{
 					return shoppingCart.Product.Price50;
 				}
