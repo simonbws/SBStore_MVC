@@ -94,9 +94,15 @@ This project follows a layered architecture:
 - Run the database migration command in the console: update-database
 - Start the application with the command: dotnet run
 ## Author
-Szymon Bywalec
+simonbws
+---
 Based on the course .NET Core - The Complete Guide by Bhrugen Patel
-
+[View the Certificate of Completion] https://www.udemy.com/certificate/UC-4594b97a-700e-4cbd-8448-306256855bd8/
+---
+Additional learning resources that supported this project:
+---
+- "Solid, Design Patterns in c# (.NET)" - [View the Certificate of Completion] https://www.udemy.com/certificate/UC-83481351-69fc-477b-a85c-43dc07d91dda/
+- "ASP.NET Core Identity - Authentication & Authorization [MVC]" - [View the Certificate of Completion] https://www.udemy.com/certificate/UC-50f0c949-b453-46cd-81d4-61108a33b65a/
 <img width="1056" height="786" alt="image" src="https://github.com/user-attachments/assets/30e64176-48dc-4b54-84a2-006859d697cd" />
 <img width="1039" height="701" alt="image" src="https://github.com/user-attachments/assets/95001da1-a0dd-4523-a706-5a97b9303756" />
 <img width="1055" height="703" alt="image" src="https://github.com/user-attachments/assets/fc63cca8-689d-4d10-aa08-9a748b409dc5" />
