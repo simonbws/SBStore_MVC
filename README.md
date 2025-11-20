@@ -14,6 +14,7 @@
 - Architecture based on Repository Pattern, Unit of Work, and Dependency Injection  
 - Client-side and server-side data validation  
 - Authorization and authentication with ASP.NET Core Identity
+- Unit and Integration Tests
 
 ---
 
